@@ -1,0 +1,175 @@
+\documentclass[noexaminfo, Lau, oneside]{sapthesis}
+% Bachelor's (laurea triennale) thesis : Lau 
+%Master's (laurea specialistica) thesis: LaM 
+%PhD's thesis: PhD 
+\usepackage[italian]{babel} %use this package for a thesis written in Italian
+\usepackage{listings}
+\usepackage[utf8]{inputenx}
+\usepackage{indentfirst}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage[parfill]{parskip}
+\usepackage{float}
+\usepackage[htt]{hyphenat}
+\usepackage{lettrine}
+\usepackage{spverbatim}
+\linespread{0.9}
+\usepackage[nottoc, notlof, notlot]{tocbibind}
+\PassOptionsToPackage{hyphens}{url}
+\usepackage{hyperref}
+\hypersetup{
+			hyperfootnotes=true,			
+			bookmarks=true,			
+			colorlinks=true,
+			linkcolor=black,
+			anchorcolor=black,
+            citecolor=black,
+            filecolor=black,
+			urlcolor=blue,
+			pdftitle={Progettazione e sviluppo di un'interfaccia utente per la gestione degli scambi nell'applicazione GeneroCity per Android},
+			pdfauthor={Domiziano Scarcelli},
+			pdfkeywords={thesis, sapienza, roma, university},
+ }
+
+
+\usepackage{color}
+\graphicspath{ {./images/} }
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=java,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  alsoletter={.}
+  tabsize=1
+}
+
+\title{Progettazione e sviluppo di un'interfaccia utente per la gestione degli scambi nell'applicazione GeneroCity per Android}
+\author{Domiziano Scarcelli}
+\IDnumber{1872664}
+\course[]{Informatica in collaborazione con l'Universit\`a Telematica UNITELMA Sapienza - Teledidattica}
+\courseorganizer{Facolt\`a di Ingegneria dell'Informazione, Informatica e Statistica}
+\submitdate{2020/2021}
+\copyyear{2021}
+\advisor{Prof. Emanuele Panizzi}
+\authoremail{scarcelli.1872664@studenti.uniroma1.it}
+
+%we refer to http://ctan.mirrorcatalogs.com/macros/latex/contrib/sapthesis/sapthesis-doc.pdf for an exhaustive description of the sapthesis documentclass.
+
+\begin{document}
+
+% \frontmatter
+\maketitle
+
+% \begin{abstract}
+% write your abstract here
+% \end{abstract}
+
+\tableofcontents
+
+\mainmatter
+
+\include{1 - Introduzione}
+\include{2 - Tecnologie Utilizzate}
+\include{2 - Progettazione}
+\include{3 - Implementazione}
+\include{4 - Conclusioni}
+
+\backmatter
+\phantomsection
+\begin{thebibliography}{17}
+
+\bibitem{istat-mobilita}
+Sistema statistico nazionale Istituto nazionale di statistica 
+\url{https://www.istat.it/storage/ASI/AnnuarioStatistico_2020/Asi_2020.pdf}
+
+\bibitem{progetto-sparta}
+Progetto SPARTA: ridurre l'inquinamento grazie allo smart parking e all'analisi del traffico.
+\url{https://www.greenvulcano.com/it/progetto-sparta-ridurre-linquinamento-grazie-allo-smart-parking-e-allanalisi-del-traffico/}
+
+\bibitem{smart-parking}
+Smart parking: tutto ciò che bisogna sapere sul parcheggio intelligente
+\url{https://www.backtowork24.com/news/smart-parking-tutto-cio-che-bisogna-sapere-sul-parcheggio-intelligente}
+
+\bibitem{generocity}
+GeneroCity \url{https://www.generocity.it/}
+
+\bibitem{ui-ux-design-process}
+A Step by Step Guide to UI/UX Design Process \url{https://aufaitux.com/blog/ui-ux-design-process/}
+
+\bibitem{ux-design-process-steps}
+The UX Design Process: Everything You Need to Know \url{https://xd.adobe.com/ideas/guides/ux-design-process-steps/}
+
+\bibitem{test-usabilita}
+Test di usabilità
+\url{https://designers.italia.it/kit/test-usabilita/}
+
+\bibitem{euristiche-nielsen}
+Nielsen e le sue 10 euristiche
+\url{https://www.far.unito.it/usabilita/cap5.htm}
+
+\bibitem{activity}
+Activity
+\url{https://developer.android.com/reference/android/app/Activity}
+
+\bibitem{activity-lifecycle}
+Activity Lifecycle
+\url{https://developer.android.com/guide/components/activities/activity-lifecycle}
+
+\bibitem{fragments}
+Fragments
+\url{https://developer.android.com/guide/fragments}
+
+\bibitem{fragment-lifecycle}
+Fragment Lifecycle
+\url{https://developer.android.com/guide/fragments/lifecycle}
+
+\bibitem{intents}
+Intents
+\url{https://developer.android.com/guide/components/intents-filters}
+
+\bibitem{services}
+Services
+\url{https://developer.android.com/guide/components/services}
+
+\bibitem{what-is-restful-api}
+What is RESTful API
+\url{https://devdotcode.com/what-is-restful-api/}
+
+\bibitem{rest-api-design}
+REST API: Key Concepts, Best Practices, and Benefits
+\url{https://www.altexsoft.com/blog/rest-api-design/}
+
+\bibitem{wireframe}
+Come creare un wireframe interattivo
+\url{https://alfredoiannone.com/2018/05/02/come-creare-un-wireframe-interattivo/}
+
+\bibitem{wireframe-kit}
+Il modello di un’interfaccia e il Wireframe Kit
+\url{https://design-docs-francescozaia.readthedocs.io/en/revisione-capitolo-ui/doc/user-interface/il-modello-di-un-interfaccia-e-il-wireframe-kit.html}
+
+\bibitem{differenza-wireframe-prototipo}
+Qual è la differenza tra Wireframe, Prototipo e Mockup?
+\url{http://www.fabiomarasco.it/la-differenza-tra-wireframe-prototipo-e-mockup/}
+
+\bibitem{framents-lifecycle-2}
+Android Fragments: sperimentiamo il ciclo di vita
+\url{https://www.devapp.it/wordpress/android-fragments-sperimentiamo-il-ciclo-di-vita/}
+
+\bibitem{retrofit}
+Using Retrofit 2.x as REST client
+\url{https://www.vogella.com/tutorials/Retrofit/article.html}
+
+\end{thebibliography}
+
+\end{document}

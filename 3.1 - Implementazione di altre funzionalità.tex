@@ -1,0 +1,408 @@
+\hypertarget{implementazione}{%
+\chapter{Implementazione di altre funzionalità}\label{capitolo-3---implementazione}}
+
+\hypertarget{codice-per-controllare-se-un-utente-ha-trovato-un-match}{%
+\section{Codice per controllare se un utente ha trovato un
+match}\label{codice-per-controllare-se-un-utente-ha-trovato-un-match}}
+
+L'utilità di tale controllo è quella di aggiornare l'interfaccia utente,
+ed in particolare sostituire il \texttt{FindMatchFragment} con il
+\texttt{MatchFoundFragment} una volta che un utente ha trovato un utente di ruolo opposto compatibile.
+
+\begin{lstlisting}[caption=Controllo per vedere se l'utente è in un match o meno]
+public void checkIfGiverOrTakerIsFound() {
+    boolean isGiver = "giver".equals(userRole);
+    app.me(true, me -> {
+        Car car = me.getOwner().get(0);
+        if (car.getMatches() != null) {
+            List<Match> matches = car.getMatches().stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+            Match match = matches.get(0);
+            if ("running".equals(match.getStatus())) {
+                //Match found!!
+                try {
+                    FragmentUtils.replaceFragment(isGiver, activity, R.id.findMatchFragmentContainer, MatchFoundFragment.class, false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                checkIfGiverOrTakerIsFoundHandler.postDelayed(checkIfGiverOrTakerIsFoundRunnable, TIMEOUT);
+            }
+        }
+    });
+}
+\end{lstlisting}
+
+La funzione \texttt{checkIfGiverOrTakerIsFound()} effettua una chiamata
+alle API per ottenere la lista dei match e li ordina per data di
+creazione, con i match più recenti che occupano i primi posti della
+lista.
+
+Prende poi in considerazione il match in cima alla lista, ovvero il più
+recente, e guarda se è un match in stato di \texttt{RUNNING}.
+
+Se questo è vero, allora vuol dire che l'utente ha trovato un altro
+utente di ruolo compatibile e quindi è all'interno di un match in corso.
+Viene effettuata la sostituzione del corrente \texttt{FindMatchFragment}
+con il \texttt{MatchFoundFragment} relativo al ruolo dell'utente.
+
+\hypertarget{codice-per-controllo-stato-del-match}{%
+\section{Codice per controllo stato del
+match}\label{codice-per-controllo-stato-del-match}}
+
+L'utilità di tale controllo è quella di verificare se l'utente è ancora
+all'interno di un match in corso oppure se quest'ultimo è stato
+terminato.
+
+\begin{lstlisting}[caption=Controllo per verificare se un match è completato]
+private void matchCompletedListener() {
+    app.me(true, me -> {
+        Car car = me.getOwner().get(0);
+        if (car.getMatches() != null) {
+            Match match = car.getMatches().stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList()).get(0);
+            switch (match.getStatus()) {
+                case "success":
+                    exitMatch(MatchStatusDialog.MatchStatus.SUCCESS);
+                    break;
+                case "unsuccess-taker":
+                    exitMatch(MatchStatusDialog.MatchStatus.UNSUCCESS_TAKER);
+                    break;
+                case "unsuccess-giver":
+                    exitMatch(MatchStatusDialog.MatchStatus.UNSUCCESS_GIVER);
+                    break;
+                case "waiting":
+                    MatchStatusDialog.setMatchStatus(MatchStatusDialog.MatchStatus.WAITING);
+                    matchCompletedHandler.postDelayed(matchCompletedRunnable, TIMEOUT);
+                    break;
+                case "running":
+                    MatchStatusDialog.setMatchStatus(MatchStatusDialog.MatchStatus.RUNNING);
+                    matchCompletedHandler.postDelayed(matchCompletedRunnable, TIMEOUT);
+                    break;
+                case "deleted":
+                    exitMatch(MatchStatusDialog.MatchStatus.DELETED);
+                    break;
+                case "expired":
+                    exitMatch(MatchStatusDialog.MatchStatus.EXPIRED);
+                    break;
+                default:
+                    exitMatch(null);
+                    Log.e(TAG, "Error while checking match state");
+                    break;
+            }
+        }
+    });
+}
+\end{lstlisting}
+
+
+Il codice appena mostrato viene inizializzato sia per il taker che per
+il giver nella callback \texttt{onCreateView} del \emph{fragment.}
+
+\begin{lstlisting}[caption=Inizializzazione dell'handler e del runnable]
+matchCompletedHandler = new Handler();
+matchCompletedRunnable = this::matchCompletedListener;
+matchCompletedHandler.post(matchCompletedRunnable);
+\end{lstlisting}
+
+
+La funzione \texttt{matchCompletedListener()} effettua una chiamata alle
+API per ottenere la lista dei match e li ordina per data di creazione,
+con i match più recenti che occupano i primi posti della lista.
+
+Controlla lo stato del match in cima e, se tale match ha uno stato
+diverso da \texttt{RUNNING} o da \texttt{WAITING}, e quindi non è più in
+corso, rimuove il \texttt{MatchFoundFragment} portando l'utente nella
+pagina principale, e resetta la mappa in modo da eliminare eventuali
+elementi obsoleti tramite la funzione \texttt{exitMatch()}.
+
+\begin{lstlisting}[caption=Funzione per ripristinare la UI al termine del match]
+private void exitMatch(MatchStatusDialog.MatchStatus matchStatus) {
+    if (takerPositionUpdateHandler != null) {
+        takerPositionUpdateHandler.removeCallbacks(takerPositionUpdateRunnable);
+    }
+    MatchStatusDialog.setMatchStatus(matchStatus);
+    matchCompletedHandler.removeCallbacks(matchCompletedRunnable);
+    takerToGiverRoute.forEach(Polyline::remove);
+    resetMapBounds();
+    removeAllCarPins();
+    FragmentManager fragmentManager = activity.getSupportFragmentManager();
+    fragmentManager.popBackStack();
+}
+\end{lstlisting}
+
+In caso invece il match ha uno stato di \texttt{RUNNING} o di
+\texttt{WAITING}, vuol dire che è ancora in corso, e quindi la funzione
+viene richiamata nuovamente dopo un tempo definito in nella
+variabile \texttt{TIMEOUT}, che in questo caso vale \texttt{2000ms}, in
+modo da effettuare nuovamente il controllo.
+
+\hypertarget{codice-per-tempo-stimato-di-incontro-tra-taker-e-giver}{%
+\subsection{Codice per tempo stimato di incontro tra taker e
+giver}\label{codice-per-tempo-stimato-di-incontro-tra-taker-e-giver}}
+
+\hypertarget{percorso-tra-taker-e-giver}{%
+\subsection{Percorso tra taker e
+giver}\label{percorso-tra-taker-e-giver}}
+
+\hypertarget{conversione-da-coordinate-a-indirizzo-in-background}{%
+\subsection{Conversione da coordinate a indirizzo in
+background}\label{conversione-da-coordinate-a-indirizzo-in-background}}
+
+Per la conversione della posizione da coordinate, e quindi oggetto
+formato da una coppia di valori latitudine e longitudine, ad una stringa
+che rappresenta l'indirizzo, viene utilizzata la funzione
+\texttt{getFromLocation} della classe \texttt{Geocoder}.
+
+Tale metodo, se invocato in maniera semplice, viene eseguito in maniera
+sincrona nello stesso thread in cui viene eseguita l'interfaccia utente.
+
+Essendo un'operazione che può richiedere del tempo, invocarlo sullo
+stesso thread all'interno di un'interfaccia grafica potrebbe portare ad
+una serie di bug, di rallentamenti e di errori del tipo ANR
+(\emph{Application Non Responding).}
+
+Per eseguire il metodo in maniera asincrona, questo viene eseguito in un
+thread in background mediante un \emph{Service}.
+
+Fonte:
+\url{https://android-doc.github.io/training/location/display-address.html}
+
+Viene definita una classe \texttt{FetchAddressIntentService} che estende
+la classe \texttt{IntentService}.
+
+Per essere riconoscibile dal dispositivo, il \emph{service} deve essrere
+definito nel file \texttt{AndroidMainfest.xml.}
+
+\begin{lstlisting}
+<service
+    android:name=".services.FetchAddressIntentService"
+    android:exported="false"/>
+\end{lstlisting}
+
+
+Nella classe \texttt{FetchAddressIntentService} viene ridefinito il
+metodo \texttt{onHandleIntent} come segue:
+\begin{lstlisting}
+@Override
+protected void onHandleIntent(@Nullable Intent intent) {
+    List<Address> addresses = null;
+    Location location = intent.getParcelableExtra(GCConstants.LOCATION_DATA_EXTRA);
+    Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+    receiver = intent.getParcelableExtra(GCConstants.RECEIVER);
+    String errorMessage = "";
+    try {
+        addresses = geocoder.getFromLocation(
+                location.getLatitude(),
+                location.getLongitude(),
+                // Get just a single address.
+                1);
+    } catch (IOException ioException) {
+        // Catch network or other I/O problems.
+        errorMessage = "Service not available";
+        onHandleIntent(intent);
+    } catch (IllegalArgumentException illegalArgumentException) {
+        // Catch invalid latitude or longitude values.
+        errorMessage = "Invalid LatLng used";
+    }
+    // Handle case where no address was found.
+    if (addresses == null || addresses.isEmpty()) {
+        if (errorMessage.isEmpty()) {
+            errorMessage = "No address found";
+        }
+        deliverResultToReceiver(GCConstants.FAILURE_RESULT, errorMessage);
+    } else {
+        String address = addresses.get(0).getAddressLine(0);
+				//Take only the address name and number, without the city and postal code.
+        String result = address.split(",")[0] + ", " + address.split(",")[1]; 
+        deliverResultToReceiver(GCConstants.SUCCESS_RESULT, result);
+    }
+}
+\end{lstlisting}
+
+Tale metodo viene eseguito quando una classe A invia dei dati tramite un
+\texttt{Intent} esplicito alla classe
+\texttt{FetchAddressIntentService}.
+
+All'interno del campo extra dell'Intent vengono inseriti due oggetti:
+
+\begin{itemize}
+
+\item
+  Un oggetto \texttt{Location}
+\item
+  Un oggetto \texttt{Receiver}
+\end{itemize}
+
+La costruzione appena citata avviene nel metodo
+\texttt{startAddressIntentService()}.
+
+\begin{lstlisting}
+private void startAddressIntentService() {
+    Intent fetchAddressIntent = new Intent(getActivity(), FetchAddressIntentService.class);
+    fetchAddressIntent.putExtra(GCConstants.RECEIVER, new AddressResultReceiver(null));
+    Location location = getPointerLocation();
+    fetchAddressIntent.putExtra(GCConstants.LOCATION_DATA_EXTRA, location);
+    requireActivity().startService(fetchAddressIntent);
+}
+\end{lstlisting}
+
+
+Nel metodo \texttt{FetchAddressIntentService} vengono quindi estratti i
+dati riguardanti la posizione da convertire in indirizzo, questa viene
+convertita tramite il metodo \texttt{Geocoder.getFromLocation} e la
+stringa rappresentante l'indirizzo viene inviata al \texttt{Receiver}
+tramite il metodo \texttt{deliverResultToReceiver}.
+
+\begin{lstlisting}
+private void deliverResultToReceiver(int resultCode, String message) {
+    Bundle bundle = new Bundle();
+    bundle.putString(GCConstants.RESULT_DATA_KEY, message);
+    receiver.send(resultCode, bundle);
+}
+\end{lstlisting}
+
+
+Il \texttt{Receiver} in questo caso viene implementato come classe
+interna alla classe \texttt{ChangeParkPositionFragment.}
+
+\begin{lstlisting}
+class AddressResultReceiver extends ResultReceiver {
+
+    public AddressResultReceiver(Handler handler) {
+        super(handler);
+    }
+
+    @Override
+    protected void onReceiveResult(int resultCode, Bundle resultData) {
+        if (MainScreenActivity.isEditMode()) { //Change UI only if the user is still inside this UI
+            requireActivity().runOnUiThread(() -> {
+                String address = resultData.getString(GCConstants.RESULT_DATA_KEY);
+                confirmNewPark.setClickable(true);
+                confirmNewPark.setBackgroundColor(getResources().getColor(R.color.primaryGreen));
+                newAddress.setText(address);
+            });
+        }
+    }
+}
+\end{lstlisting}
+
+Tale \texttt{Receiver} effettua un \emph{override} del metodo
+\texttt{onReceiveResult} il quale viene invocato quando il Receiver
+riceve un risultato da un \emph{service} e definisce le operazioni che
+devono essere effettuate con tale risultato.
+
+In questo caso la classe \texttt{AddressResultReceiver}, che estende
+dalla classe \texttt{ResultReceiver} che a sua volta estende da
+\texttt{Receiver}, riceve il risultato inviato da
+\texttt{FetchAddressIntentService} e lo utilizza per mostrare su schermo
+l'indirizzo del nuovo parcheggio quando l'utente si trova all'interno
+della \emph{edit mode,} e sta quindi spostando il marker del parcheggio
+nella potenziale nuova posizione.
+
+La posizione puntata dal marker viene quindi convertita per essere di
+volta in volta visualizzata dall'utente sotto forma di indirizzo.
+
+\hypertarget{controllo-di-match-pre-esistenti-per-il-ripristino-dellinterfaccia}{%
+\section{Controllo di match pre-esistenti per il ripristino
+dell'interfaccia}\label{controllo-di-match-pre-esistenti-per-il-ripristino-dellinterfaccia}}
+
+Quando l'applicazione viene avviata, viene effettuato un controllo per
+verificare se l'utente sia in protagonista all'interno di un match con
+status \texttt{RUNNING} o \texttt{WAITING}, in maniera da ripristinare
+la corretta schermata.
+
+\hypertarget{utilituxe0-di-tale-controllo}{%
+\subsubsection{Utilità di tale
+controllo}\label{utilituxe0-di-tale-controllo}}
+
+Si ipotizzi che tale controllo non venga effettuato, e si ipotizzi che
+l'utente prema sul pulsante ``Cerca posto'' per cercare un \emph{giver}
+con cui scambiare un posto. L'applicazione allora mostrerà la schermata
+di ricerca di un posto (Figura 1).
+
+Si ipotizzi però che, per qualche motivo, l'applicazione venga chiusa, e
+quindi l'interfaccia proseguirà a chiamare le opportune \emph{callbacks}
+per rimuovere i \emph{fragments.}
+
+Al successivo riavvio dell'applicazione, essa, non effettuando nessun
+controllo sullo stato di un eventuale match, mostrerà la schermata
+iniziale, anche se l'utente è attualmente in ricerca di un posto. Questo
+disallinamento dell'interfaccia del sistema con lo stato del sistema può
+portare ad una serie di gravi bug.
+
+\hypertarget{codice-per-effettuare-il-controllo}{%
+\subsubsection{Codice per effettuare il
+controllo}\label{codice-per-effettuare-il-controllo}}
+
+\begin{lstlisting}
+private void resumePendingMatchUI() {
+		//Effettuo una chiamata alle API per ottenere le informazioni circa l'utente
+    app.me(true, me -> {
+        if (me.getOwner().size() == 0) {
+            return;
+        }
+        Car car = me.getOwner().get(0);
+        if (car.getMatches() != null) {
+            List<Match> matches = car.getMatches().stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+            for (Match match : matches) {
+                //Controllo se l'utente abbia dei match in sospeso
+                if ("waiting".equals(match.getStatus())) {
+                    //Se l'utente è taker nel match in sospeso
+                    if (car.getCid().toString().equals(match.getTakerCid())) {
+                        try {
+                            //Rimpiazzo il frammento con il FindMatchFragment da taker
+                            FragmentUtils.replaceFragment(false, getActivity(), R.id.carFragment, FindMatchFragment.class, true, true);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        //Se l'utente è giver nel match in sospeso
+                    } else if (car.getCid().toString().equals(match.getGiverCid())) {
+                        try {
+                            //Rimpiazzo il frammento con il FindMatchFragment da giver
+                            FragmentUtils.replaceFragment(true, getActivity(), R.id.carFragment, FindMatchFragment.class, true, true);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+                    //Controllo se l'utente abbia dei match in corso
+                } else if ("running".equals(match.getStatus())) {
+                     //Se l'utente è taker nel match in corso
+                    if (car.getCid().toString().equals(match.getTakerCid())) {
+                        try {
+                            //Rimpiazzo il frammento con il  MatchFoundFragment da taker
+                            FragmentUtils.replaceFragment(false, getActivity(), R.id.carFragment, MatchFoundFragment.class, true, true);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        //Se l'utente è giver nel match in corso
+                    } else if (car.getCid().toString().equals(match.getGiverCid())) {
+                        try {
+                            //Rimpiazzo il frammento con il  MatchFoundFragment da giver
+                            FragmentUtils.replaceFragment(true, getActivity(), R.id.carFragment, MatchFoundFragment.class, true, true);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                  break;
+                }
+            }
+        }
+    });
+}
+\end{lstlisting}
+
+Tale controllo avviene nella \emph{callback} \texttt{onCreateView()} del
+\texttt{CarFragment}.
+
+La funzione \texttt{resumePendingMatchUI()} effettua una chiamata alle
+API per ottenere la lista dei match relativi all'utente e la ordina in
+modo analogo alla funzione \texttt{matchCompletedListener()} prima
+citata.
+
+Controlla poi il match in cima alla lista per vedere se è un match con
+stato \texttt{RUNNING} o \texttt{WAITING} e, se una di queste condizioni
+è verificata, ripristina rispettivamente il \texttt{MatchFoundFragment}
+o il \texttt{FindMatchFragment}.
+
+In caso nessuna delle due condizioni è verificata la funzione non
+effettua nulla.

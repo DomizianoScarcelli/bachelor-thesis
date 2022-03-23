@@ -1,0 +1,50 @@
+\chapter{Conclusioni}
+
+\section{Sommario}
+
+Nel \autoref{introduzione} sono stati analizzati gli obiettivi che l'applicazione su cui si è svolto il lavoro vuole risolvere, ed in che modo promette di farlo.
+
+Nel \autoref{tecnologie-utilizzate} sono state mostrate le tecnologie utilizzate all'interno del tirocinio, insieme ai concetti fondamentali per lo sviluppo di applicazioni Android.
+
+Nel \autoref{progettazione} è stata discussa la fase di progettazione della UI (User Interface) e della UX (User Experience). La prima è volta a comprendere come organizzare gli elementi mostrati sullo schermo in maniera da rendere l'applicazione facile da utilizzare; la seconda è volta a capire in che modo strutturare l'intero sistema per rendere l'esperienza che l'utente ha con quest'ultimo il più piacevole possibile.
+
+Sono stati quindi mostrati i prototipi delle interfacce che sono state sviluppate, descrivendo le relative funzionalità, e sono stati documentati i test di usabilità effettuati, elencando i problemi individuati e le soluzioni che sono state proposte, fino all'arrivo di un'interfaccia completa.
+
+Nel \autoref{implementazione} sono stati approfonditi i dettagli implementativi circa le interfacce e funzionalità progettate nel \autoref{progettazione}, mostrando le parti di codice significative che hanno portato alla realizzazione delle funzionalità desiderate.
+
+Il tirocinante, alla fine del lavoro, ha maturato le seguenti capacità:
+\begin{itemize}
+    \item Progettazione di un prototipo di interfaccia;
+    \item Implementazione di un'interfaccia all'interno di Android a partire da un prototipo;
+    \item Sviluppo di funzionalità in ambito Android in linguaggio Java;
+    \item Effettuare chiamate API e gestire le risposte.
+\end{itemize}
+
+\pagebreak
+\section{Sviluppi Futuri}
+Dall'inizio del tirocinio alla fine di quest'ultimo all'interno dell'applicazione sono state inserite numerose funzionalità, tuttavia l'applicazione è ancora nelle prime fasi di sviluppo e quindi sono molteplici quelle che ancora possono essere implementate.
+
+Le funzionalità principali a mancare per quanto riguarda la gestione dei match sono:
+\begin{itemize}
+    \item La possibilità di un utente di cercare un posto in una zona differente da quella in cui si trova attualmente;
+    \item La possibilità di un utente di cercare un posto in un orario differente da quello attuale, in modo da prenotarsi il posto per un momento futuro della giornata;
+    \item La possibilità di un utente di essere Giver e Taker contemporaneamente.
+\end{itemize}
+
+A parte le prime due funzionalità che sono abbastanza autodescrittive, in questa sezione si descriveranno i dettagli e le complicazioni riguardanti la possibile implementazione della terza funzionalità.
+
+Si ipotizzi che le prime due funzionalità elencate sopra già esistano all'interno dell'applicazione, e si ipotizzi la seguente situazione:
+\begin{enumerate}
+    \item Sia A un utente attualmente parcheggiato;
+    \item A effettua un "Cerca posto" in un'altra zona;
+\end{enumerate}
+
+L'utente diventa quindi un Taker e raggiunge il Giver B associato per occupare il suo posto. Essendo l'utente A però parcheggiato, ed essendo egli un Taker, non può effettuare un "Lascia posto" prima di raggiungere l'utente B. 
+
+Questo vuol dire che il posto da lui lasciato non verrà immediatamente occupato da un eventuale Giver C.
+
+È possibile risolvere questo problema dissociando le azioni di "Cerca posto" e "Lascia posto", in modo che queste siano eseguibili indipendentemente l'una dall'altra.
+
+Un utente A parcheggiato che intende effettuare un "Cerca posto", potrebbe quindi effettuare prima un "Lascia posto" per trovare un Taker B compatibile che occupi il suo attuale posto.
+Effettuerà il "Cerca posto" nell'attesa che il Taker arrivi nella sua posizione, in modo da trovarsi già un utente Giver C compatibile. Una volta che il Taker B sia arrivato nella posizione dell'utente A e questi si siano scambiati i posti, l'utente A raggiungerà l'utente C per scambiare il posto auto con lui.
+

@@ -1,0 +1,145 @@
+\hypertarget{implementazione}{%
+\chapter{Implementazione}\label{implementazione}}
+
+In questo capitolo si discuteranno i dettagli implementativi di una funzionalità in particolare di quelle sviluppate. Si è scelta la funzionalità di aggiornamento della posizione del Taker in real-time sull'interfaccia mostrata al Giver.
+\section{Aggiornamento posizione Taker in real-time}
+Il flusso della funzionalità è stato descritto nella \autoref{aggiornamento-della-posizione-del-taker}.
+
+\subsection{Invio periodico della posizione al server}\label{invio-periodico-posizione-taker}
+Per ripetere un'azione in maniera periodica ogni $x$ secondi, all'interno del metodo \texttt{onCreateView()} del \texttt{MatchFoundFragment} viene inizializzato un oggetto \texttt{Runnable} il cui scopo è quello di eseguire la funzione per ottenere la posizione del Taker ed inviarla al server tramite una chiamata alle API.
+
+Come è possibile vedere nel codice mostrato in  \autoref{inizializzazione-runnable}, il \texttt{Runnable} viene inserito all'interno di un \texttt{Handler}, e quindi eseguito immediatamente per la prima volta.
+
+\begin{lstlisting}[caption=Inizializzazione del runnable,  label=inizializzazione-runnable]
+
+takerPositionUpdateHandler = new Handler();
+takerPositionUpdateRunnable = this::startTakerPositionUpdate;
+takerPositionUpdateHandler.post(takerPositionUpdateRunnable);
+\end{lstlisting}
+
+L'effettivo codice che viene utilizzato dal \texttt{Runnable} per ottenere la posizione ed inviarla al server è incapsulato all'interno del metodo \texttt{startTakerPositionUpdate()} mostrato in \autoref{invio-posizione-taker}.
+
+\begin{lstlisting}[caption=Metodo per l'invio della posizione del Taker al server,  label=invio-posizione-taker]
+private void startTakerPositionUpdate() {
+    FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(app);
+    if (ActivityCompat.checkSelfPermission(app.getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(app.getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        return;
+    }
+    fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+        if (task.getResult() != null) {
+            MatchUtils.updateTakerPosition(app, new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude()));
+        }
+        takerPositionUpdateHandler.postDelayed(takerPositionUpdateRunnable, LONG_TIMEOUT);
+    });
+}
+\end{lstlisting}
+
+Alla fine della chiamata API effettuata dal metodo, il \texttt{Runnable} viene aggiunto nuovamente all'\texttt{Handler} tramite il metodo \texttt{Handler.postDelayed}, che eseguirà il \texttt{Runnable} nuovamente dopo aver atteso un tempo specificato in \texttt{LONG\_TIMEOUT}, che in questo caso è di \texttt{5000ms}.
+
+\begin{lstlisting}[caption=Body della chiamata alle API per l'aggiornamento della posizione del Taker, label=body-aggiornamento-posizione]
+{
+  "lat": 41.89891375106414,
+  "lon": 12.3247983291,
+  "schedule": "2020-05-14T12:12:58+02:00",
+  "eta": 65
+}
+\end{lstlisting}
+
+Nel \autoref{body-aggiornamento-posizione} viene mostrato il \texttt{body} della chiamata alle API che il Taker effettua per aggiornare la posizione al server. Il body è un oggetto json contenente le seguenti informazioni:
+\begin{itemize}
+\item
+  \texttt{lat}: la latitudine del Taker;
+\item
+  \texttt{lon}: la longitudine del Taker;
+\item
+  \texttt{schedule}: un \texttt{timestamp} formattato come stringa, il quale fa riferimento al campo omonimo all'interno dell'oggetto Match documentato in \autoref{match}, che indica quando il Taker intende  occupare un posto;
+\item
+  \texttt{eta}: il tempo previsto, indicato in secondi, prima dell'incontro tra il Taker ed il Giver.
+\end{itemize}
+
+\subsection{Ricezione notifiche push}
+Nella \autoref{invio-periodico-posizione-taker} si è discusso il modo in cui il client del Taker invia la posizione aggiornata al server. In questa sezione si parlerà invece del modo in cui il Giver ottiene la nuova posizione dal server e procede con l'aggiornamento sull'interfaccia. 
+
+Come già accennato, l'informazione relativa alla posizione del Taker viene inviata al client del Giver tramite una notifica push, tramite il servizio \emph{Firebase Cloud Messaging} (\emph{FCM}).
+
+Per configurare il client alla ricezione di notifiche da parte di questo servizio, viene creata una classe \texttt{NotificationService} che estende \texttt{FirebaseMessagingService}.
+
+Come mostrato in \autoref{firebase-service-in-manifest}, il \texttt{Service} viene aggiunto al file \texttt{AndroidMainfest.xml} per rendere consapevole l'applicazione della sua esistenza, e quindi per permetterne il corretto funzionamento.
+
+\begin{lstlisting}[caption=Aggiunta del \texttt{Service} all'interno del file \texttt{AndroidMainfest.xml}, label=firebase-service-in-manifest]
+<service
+    android:name=".services.NotificationService"
+    android:exported="false">
+    <intent-filter>
+        <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+    </intent-filter>
+</service>
+\end{lstlisting}
+
+Il primo passo per permettere la ricezione di notifiche push da parte
+del client è quello di inviare al server il Token di registrazione generato dal \texttt{FCM SDK} all'avvio dell'applicazione, e relativo all'istanza dell'applicazione stessa. La conoscenza da parte del server di questo Token è di fondamentale per rendere possibile la comunicazione uno-ad-uno.
+
+\begin{lstlisting}[caption=Invio del Token al server, label=invio-token]
+@Override
+public void onNewToken(@NonNull String s) {
+    super.onNewToken(s);
+    //API call to update the push notification token
+    app.me(false, me -> {
+        app.api().updatePushToken(s).enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                Log.d(TAG, "onResponse: " + response.body());
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Log.e(TAG, "onFailure: " + t.getMessage());
+            }
+        });
+    });
+}
+\end{lstlisting}
+
+Come mostrato in \autoref{invio-token}, viene effettuato un \emph{override} del metodo \texttt{onNewToken}, il quale viene chiamato dal client ogni volta che il \texttt{FCM SDK} ne genera uno nuovo.
+
+Il Token viene inviato al server all'interno del \texttt{body} della chiamata alle API con \texttt{endpoint "/me/push/tokens/"} e metodo \texttt{HTTP POST}.
+
+Viene poi effettuato un \emph{override} del metodo \texttt{onMessageReceived} che viene chiamato ogni volta che il client riceve una notifica push dal server.
+
+\begin{lstlisting}[caption=Override del metodo per gestire la ricezione di notifiche push, label=onMessageReceived]
+@Override
+public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
+    super.onMessageReceived(remoteMessage);
+    Map<String, String> data = remoteMessage.getData();
+    if (data.get("lat") != null && data.get("lon") != null) {
+        LatLng takerPosition = new LatLng(Double.parseDouble(data.get("lat")), Double.parseDouble(data.get("lon")));
+        Intent intent = new Intent("TakerPosition");
+        intent.putExtra("latLng", takerPosition);
+        broadcaster.sendBroadcast(intent);
+    }
+}
+\end{lstlisting}
+
+All'interno di questo metodo viene creato un oggetto \texttt{LatLng} contenente le coordinate del Taker estratte dai campi \texttt{lat} e \texttt{lon} del messaggio della notifica.
+
+L'oggetto contenente le coordinate viene inserito all'interno di un \texttt{Intent} che viene inviato al \texttt{LoacalBroadcastManager}.
+
+\begin{lstlisting}[caption=Gestione dell'intent, label=notificationReceiver]
+private final BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Log.d("NotificationDebug", "NotificationReceiver data: " + Objects.requireNonNull(intent.getExtras()).getParcelable("latLng"));
+        LatLng takerPosition = Objects.requireNonNull(intent.getExtras()).getParcelable("latLng");
+        if (takerPositionMarker != null) {
+            MarkerAnimationUtils.animateMarkerToGB(takerPositionMarker, takerPosition, new LatLngInterpolator.Linear());
+        }
+    }
+};
+\end{lstlisting}
+
+In \autoref{notificationReceiver} viene mostrato come viene gestita la ricezione dell'\texttt{Intent} inviato in \autoref{onMessageReceived}.
+
+In particolare, viene estratto l'oggetto \texttt{LatLng} contenente le coordinate, e viene spostato il marker in tali coordinate mediante un'animazione fluida dalla durata di \texttt{5000ms}. \footnote{Animazione permessa dalla libreria raggiungibile al \href{https://gist.github.com/jcholin/a0afa38e606f9722680cbc25c3cea46b}{seguente link.}}
+
+La durata dell'animazione è stata impostata a \texttt{5000ms} in quanto questo è il tempo che passa tra una notifica push e l'altra. In questo modo il cambio di posizione ottenuto durante le varie notifiche push ottenuto sarà il più fluido possibile. 

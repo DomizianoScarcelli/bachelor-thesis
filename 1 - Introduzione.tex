@@ -1,0 +1,266 @@
+\hypertarget{introduzione}{%
+\chapter{Introduzione}\label{introduzione}}
+
+\hypertarget{analisi-di-contesto}{%
+\section{Analisi di contesto}\label{analisi-di-contesto}}
+
+Secondo le analisi ISTAT del 2019, i problemi che preoccupano più le famiglie italiane sono: il traffico (39,2\%), l'inquinamento dell'aria (37,7\%), la difficoltà di parcheggio (37,4\%), con un aumento di 1,7 punti percentuali rispetto all'anno precedente. Tale problema è concentrato nelle regioni del Nord.
+
+La ricerca del parcheggio porta ad un ingente aumento dell'inquinamento dell'aria in quanto la maggior parte delle emissioni nocive dei mezzi a motore avviene a bassi regimi.
+
+Questo è causato dal fatto che in città molto trafficate si possono utilizzare anche 45 minuti nel traffico alla ricerca di un parcheggio. \cite{istat-mobilita}
+
+Per \emph{smart parking} si intende l'utilizzo di una tecnologia che consenta di individuare le piazzole di sosta disponibili all'interno di una determinata area, permettendo di creare una mappa dei vari parcheggi aggiornata in tempo reale. \cite{progetto-sparta}
+
+Un sistema di smart parking porterebbe quindi, se altamente diffuso, ad un elevato numero di benefici, tra cui:
+
+\begin{itemize}
+\item Riduzione del traffico causato dalle persone alla ricerca di parcheggio;
+\item Risparmio di carburante, e quindi denaro, da parte degli utenti;
+\item Risparmio di tempo occupato alla guida;
+\item Riduzione delle emissioni da CO2
+\item Riduzione dello \emph{stress} degli utenti
+\end{itemize}
+
+Un modo per risolvere il problema dei parcheggi nelle città, e quindi implementare lo \emph{smart parking}, è quello di creare delle infrastrutture \emph{ad hoc} che permettano di capire quali parcheggi sono occupati e quali no tramite sensori e videocamere, in maniera da comunicare poi tale informazione tramite qualche canale, ad esempio un'applicazione per mobile, agli automobilisti interessati. \cite{smart-parking}
+
+Questa soluzione, anche se molto efficace, richiede non solo lo sviluppo di un'applicazione per la comunicazione tra l'infrastruttura e gli utenti, ma richiede soprattutto un intervento diretto da parte del singole città per quanto riguarda la vera e propria costruzione delle infrastrutture.
+
+Attualmente la soluzione appena descritta viene implementate in parcheggi privati come garage, parcheggi di centri commerciali ecc.
+
+\hypertarget{generocity}{%
+\section{GeneroCity}\label{generocity}}
+
+La soluzione proposta da GeneroCity è quella di realizzare tutte le funzionalità relative allo \emph{smart parking} sopra citate senza però fare ricorso ad infrastrutture realizzate appositamente.
+
+Tra le funzionalità che l'applicazione dovrebbe permettere è possibile trovare:
+
+\begin{itemize}
+
+\item Registrazione e rimozione automatica dei parcheggi effettuati dall'utente;
+\item Rilevazione autonoma della ricerca di un parcheggio da parte dell'utente;
+\item Possibilità di comunicare l'intezione di lasciare un parcheggio occupato ad un utente che ne ha bisogno;
+\item Visualizzazione di statistiche relative ai parcheggi effettuati;
+\end{itemize}
+
+Dal sito web ufficiale dell'applicazione, è possibile reperire una descrizione del sistema:
+
+\begin{quote} GeneroCity è un'applicazione di smart parking per Android e iOS sviluppata dal Gamification Lab del Dipartimento di Informatica dell'Università degli Studi di Roma ``La Sapienza''.
+
+Lo scopo dell'applicazione è quello di facilitare lo scambio dei parcheggi all'interno di un'area urbana puntando sulla generosità degli utenti.
+
+L'applicazione consente inoltre di gestire le informazioni delle proprie automobili e di condividerle con i propri familiari. \cite{generocity}
+\end{quote}
+
+\hypertarget{gamification}{%
+\subsubsection{Gamification}\label{gamification}}
+
+Con il termine \emph{gamification} si intende l'utilizzo di meccaniche ludiche all'interno di contesti non di gioco.
+
+L'applicazione implementa un sistema di \emph{gamification} volto a rendere gli utenti più partecipi, dando loro la possibilità di accumulare e spendere dei punti nell'effettuare scambi di parcheggio con gli altri utenti della \emph{community}.
+
+Un utente infatti può effettuare la ricerca di un posto solamente se ha abbastanza punti, denominati \emph{GCoins}, a disposizione, che possono essere guadagnati dall'utente quando questo lascia il proprio parcheggio ad un altro utente.
+
+Il sistema appena descritto è implementato nella versione dell'aplicazione di iOS ma non in quella Android, in quanto ancora nelle prime fasi di sviluppo.
+
+\hypertarget{stato-dellapplicazione-allinizio-del-tirocinio}{%
+\subsection{Stato dell'applicazione all'inizio del tirocinio}\label{stato-dellapplicazione-allinizio-del-tirocinio}}
+
+All'inizio di questo tirocinio l'applicazione presentava solo una schermata principale, su cui veniva segnata la posizione del parcheggio corrente. Era tuttavia presente il modello della macchina a stati in grado di riconoscere lo stato dell'utente, e quindi di registrare e rimuovere automaticamente i parcheggi.
+
+\hypertarget{obiettivi-del-tirocinio}{%
+\section{Obiettivi del tirocinio}\label{obiettivi-del-tirocinio}}
+
+Lo studente ha eseguito il tirocinio dal mese di Novembre 2021 fino a Marzo 2022. In tale periodo ha svolto i seguenti task:
+
+\begin{itemize}
+
+\item Progettazione e sviluppo, insieme ad altri due membri del team, di un'interfaccia utente per la visualizzazione di uno storico dei parcheggi effettuati dall'utente;
+\item Paginazione dei risultati presenti nello storico dei parcheggi.
+\item Progettazione e sviluppo delle schermate relative alla gestione dei match.
+\item Progettazione e sviluppo della schermata per modificare la posizione di un parcheggio.
+\end{itemize}
+
+\hypertarget{ciclo-di-progettazione-dellinterfaccia-utente}{%
+\section{Ciclo di progettazione dell'interfaccia utente}\label{ciclo-di-progettazione-dellinterfaccia-utente}}
+
+Con ciclo di progettazione di un sistema si intende quel processo volto a capire in che maniera strutturare il sistema che si vuole realizzare, partendo dal capire i bisogni degli utenti, fino ad effettuare dei prototipi dell'interfaccia.
+
+Lo scopo di tale ciclo è quello di progettare un sistema che consenta la miglior esperienza utente possibile.
+
+L'intero processo di progettazione dell'interfaccia utente (UI: User Interface) e dell'esperienza utente (UX: User Experience) può essere diviso in 5 fasi: \cite{ui-ux-design-process} \cite{ux-design-process-steps}
+
+\begin{enumerate}
+    \item Definizione del prodotto
+    \item Ricerca
+    \item Analisi
+    \item Progettazione
+    \item Test di usabilità
+\end{enumerate}
+
+\hypertarget{definizione-del-prodotto}{%
+\subsubsection{Definizione del prodotto}\label{definizione-del-prodotto}}
+
+Per definizione del prodotto si intende capire in cosa consisterà il prodotto, capire i suoi reali scopi e quindi perché è necessaria la sua realizzazione.
+
+In questa fase i progettisti comunicano con le altre persone del team e con il committente in modo da ricavare dei requisiti, che serviranno poi nelle fasi successive
+
+\hypertarget{ricerca}{%
+\subsubsection{Ricerca}\label{ricerca}}
+
+Durante questa fase viene effettuata una ricerca approfondita sull'utente e sul mercato.
+
+Fasi della ricerca sono:
+
+\begin{itemize}
+    \item \emph{Individual in-depth interviews} (IDI)\emph{:} consistono in interviste effettuate agli utenti e permettono di trovare informazioni come il target, i bisogni, le paure, le motivazioni e i comportamenti.
+    \item \emph{Competitive research}: consiste nell'identificare le opportunità del prodotto nella sua nicchia, studiando la competizione e comprendendo i punti di forza e di debolezza di tali prodotti.
+\end{itemize}
+\hypertarget{analisi}{%
+\subsubsection{Analisi}\label{analisi}}
+
+Nella fase di analisi si passa a capire non più ``cosa'' l'utente vuole, cosa pensa e di cosa ha bisogno, informazioni trovate nella fase di ricerca, ma si cerca di capirne il ``perchè''.
+
+Vengono quindi prodotti una serie di oggetti:
+
+\begin{itemize}
+    \item \emph{User Personas}, ovvero delle rappresentazioni fittizie di personaggi che rappresentano differenti tipi di utenti che utilizzano il sistema.
+    \item \emph{User Stories}, ovvero uno strumento che consente di vedere l'interazione tra l'utente e il sistema dal punto di vista dell'utente. Spesso una \emph{story} segue la struttura: ``\emph{Come {[}utente{]} voglio {[}obiettivo da raggiungere{]} in maniera tale da {[}motivazione{]}''}
+    \item \emph{Storyboards}, ovvero la connessione tra \emph{User Personas} e \emph{User Stories}, consiste in una storia (rappresentata testualmente o graficamente) dell'utente che interagisce con il sistema.
+\end{itemize}
+\hypertarget{progettazione}{%
+\subsubsection{Progettazione}\label{progettazione}}
+
+Una volta trovate le informazioni chiave relative all'utente e al mercato, è possibile progettare l'interfaccia utente del sistema.
+
+Vengono quindi prodotti \emph{wireframes} e prototipi che verranno usati poi per la fase di testing e la fase di implementazione.
+
+\hypertarget{wireframe}{%
+\paragraph{Wireframe}\label{wireframe}}
+
+Un \emph{wireframe} costituisce una bozza della prima rappresentazione dell'interfaccia, il cui scopo è quello di identificare la struttura dell'applicazione (applicazione intesa in maniera generica come il luogo dove viene visualizzata tale interfaccia utente) e mostrare la disposizione degli elementi nella pagina. \cite{wireframe}
+
+Un wireframe può essere realizzato con penna e carta, ma esistono dei software \emph{ad hoc} come \emph{Adobe XD} e \emph{Figma}.
+
+I wireframe sono un modo veloce ed efficace per realizzare prototipi rapidi di interfacce, e possono essere utilizzati per misurare la funzionalità di quest'ultime.
+
+Solitamente, soprattutto se progettati a mano, i wireframe consistono in una rappresentazione a bassa fedeltà (\emph{lo-fi} in inglese) dell'interfaccia che si intende realizzare. Tale rappresentazione permette rapidità nella progettazione iniziale e negli eventuali cambiamenti futuri.
+
+Una rappresentazione ad alta fedeltà, e quindi più ricca di dettagli e più simile all'interfaccia definitiva che verrà poi implementata sul sistema, è più impegnativa ed eventuali modifiche richiedono maggior tempo e sforzo. \cite{wireframe-kit}
+
+Il modello a bassa fedeltà di un'interfaccia utente definisce:
+
+\begin{itemize}
+    \item L'organizzazione degli elementi sullo schermo;
+    \item La sequenza dei passaggi che l'utente deve effettuare per concludere un \emph{task};
+    \item Il modo tramite il quale l'utente interagisce con il sistema.
+\end{itemize}
+La principale proprietà di un wireframe a bassa fedeltà è il fatto che questo viene progettato senza tener conto dei dettagli estetici, ma viene data completa priorità alla struttura. In questo modo l'attenzione è incentrata completamente sullo scheletro della struttura dell'interfaccia.
+
+Inoltre in questo modo gli utenti che effettueranno eventuali test di usabilità non verranno distratti da scelte estetiche non definitive, e i test riguarderanno solamente l'interazione dell'utente con il sistema.
+
+\hypertarget{prototipo}{%
+\paragraph{Prototipo}\label{prototipo}}
+
+Mentre un \emph{wireframe} è un artefatto statico, un prototipo è una bozza più avanzata dell'interfaccia che permette l'interazione da parte dell'utente. \cite{differenza-wireframe-prototipo}
+
+Un prototipo risulta utile per effettuare test di usabilità prima ancora che l'interfaccia venga implementata.
+
+\hypertarget{test-di-usabilituxe0-con-utenti}{%
+\subsubsection{Test di usabilità con utenti}\label{test-di-usabilituxe0-con-utenti}}
+
+Alla base della progettazione di un'interfaccia utente vi è il concetto di usabilità, il cui scopo è quello di rendere l'interfaccia facile da comprendere, da ricordare e da usare, in maniera tale che comporti il minor sforzo cognitivo possibile da parte dell'utente.
+
+Un'interfaccia poco usabile può far commettere delle azioni non volute dall'utente, e quindi rovinare l'esperienza di quest'ultimo.
+
+Per test di usabilità si intende l'osservazione dell'interazione tra il sistema che si vuole testare ed un utente, a cui utente viene assegnato un o più compiti da svolgere, e vengono analizzati i suoi comportamenti durante tale svolgimento. Questi test sono una parte fondamentale della progettazione di un'interfaccia in quanto possono essere tenuti prima del vero e proprio sviluppo, visto che l'utente può interagire con un prototipo del sistema, e consentono di rilevare molti errori legati all'usabilità. \cite{test-usabilita}
+
+\hypertarget{euristiche-di-nielsen}{%
+\section{Euristiche di Nielsen}\label{euristiche-di-nielsen}}
+
+Prima ancora di effettuare i test con gli utenti, è possibile valutare l'usabilità durante la progettazione dell'interfaccia osservando se quest'ultima soddisfi i principi stilati nelle 10 euristiche di Nielsen, indicate di seguito. \cite{euristiche-nielsen}
+
+\hypertarget{visibilituxe0-dello-stato-del-sistema}{%
+\subsubsection{Visibilità dello stato del sistema}\label{visibilituxe0-dello-stato-del-sistema}}
+
+Il sistema deve tenere aggiornato l'utente su cosa esso stia facendo, e quindi fornire dei \emph{feedbacks.}
+
+Esempi di \emph{feedbacks} sono:
+
+\begin{itemize}
+    \item Messaggi di errore;
+    \item Icone, dei testi o dei bottoni meno saturi per mostrare che la funzione non è disponibile;
+    \item Barre di caricamento per mostrare che una certa attività è in corso.
+\end{itemize}
+\hypertarget{corrispondenza-tra-sistema-e-mondo-reale}{%
+\subsubsection{Corrispondenza tra sistema e mondo reale}\label{corrispondenza-tra-sistema-e-mondo-reale}}
+
+Il sistema deve essere espresso in un linguaggio comune all'utente, con parole, frasi e concetti a lui familiari.
+
+Essenziale è anche l'utilizzo di metafore, ovvero effettuare delle scelte progettuali che consentano all'utente di associare un immagine o un processo presente nell'interfaccia del sistema ad un qualcosa presente nella vita di tutti i giorni. In questa maniera la persona che viene messa di fronte ad una metafora ragiona per analogia.
+
+
+\hypertarget{controllo-e-libertuxe0}{%
+\subsubsection{Controllo e libertà}\label{controllo-e-libertuxe0}}
+
+L'utente deve avere il controllo del sistema e deve potersi muovere in maniera agile all'interno di quest'ultimo.
+
+È necessario quindi evitare:
+
+\begin{itemize}
+    \item Procedure troppo lunghe;
+    \item Percorsi predefiniti senza possibili scorciatoie;
+    \item Azioni non volute dall'utente, come l'apertura di pagine non richieste.
+\end{itemize}
+\hypertarget{consistenza-e-standard}{%
+\subsubsection{Consistenza e standard}\label{consistenza-e-standard}}
+
+L'utente deve avere la sensazione di trovarsi sempre nello stesso ambiente. È quindi necessario che le convenzioni grafiche utilizzate siano valide all'interno di tutto il sistema.
+
+Molto utile è anche l'utilizzo di elementi standard nel contesto in cui viene sviluppato il sistema.
+
+Nell'ambito di sviluppo Android sarà quindi di aiuto attenersi alle linee guida del Material Design.
+
+\hypertarget{prevenzione-dellerrore}{%
+\subsubsection{Prevenzione dell'errore}\label{prevenzione-dellerrore}}
+
+Il sistema deve evitare di porre l'utente in situazioni che possano portare questo a commettere degli errori. Bisogna quindi evitare che l'interfaccia presenti delle ambiguità.
+
+Quando possibile è necessario dare la possibilità all'utente di annullare le proprie azioni.
+
+È necessario chiedere conferma quando l'utente cerca di eseguire delle azioni distruttive o critiche.
+
+\hypertarget{riconoscimento-anzichuxe9-ricordo}{%
+\subsubsection{Riconoscimento anziché ricordo}\label{riconoscimento-anzichuxe9-ricordo}}
+
+L'utilizzo del sistema deve evitare che l'utente abbia il bisogno di riscoprire ogni volta l'interfaccia.
+
+I layout devono quindi essere semplici e schematici, simili tra di loro in maniera tale che l'utente possa riconoscere dei \emph{pattern.}
+
+Visto che la maggior parte degli utenti, al giorno d'oggi, utilizza applicazioni interattive su dispositivi mobili che, per costituzione, hanno delle dimensioni ridotte, è preferibile, ovunque sia necessario un inserimento di informazioni, dare all'utente l'opportunità di scegliere e quindi di selezionare l'informazione corretta invece che inserirla tramite la tastiera.
+
+\hypertarget{flessibilituxe0-duso}{%
+\subsubsection{Flessibilità d'uso}\label{flessibilituxe0-duso}}
+
+Offrire all'utente di utilizzare il sistema in maniera differente a seconda della sua esperienza. Offrendo quindi comandi semplici per i meno esperti e delle scorciatoie per i più esperti.
+
+\hypertarget{design-e-estetica-minimalista}{%
+\subsubsection{Design e estetica minimalista}\label{design-e-estetica-minimalista}}
+
+Dare maggior importanza al contenuto quanto all'estetica.
+
+È importante mantenere l'interfaccia minimalista in modo da evitare che l'utente venga distratto o confuso da elementi irrilevanti o raramente necessari.
+
+\hypertarget{aiuto-allutente}{%
+\subsubsection{Aiuto all'utente}\label{aiuto-allutente}}
+
+Aiutare l'utente a riconoscere e diagnosticare un eventuale errore.
+
+Bisogna quindi esprimere i messaggi di errore in linguaggio semplice e comprensibile, evitando codici.
+
+Tali messaggi devono inoltre indicare in maniera precisa il problema e suggerire una soluzione.
+
+\hypertarget{documentazione}{%
+\subsubsection{Documentazione}\label{documentazione}}
+
+Anche se il sistema dovrebbe essere usabile senza consultare una documentazione, quest'ultima dovrebbe essere disponibile, facile da leggere e strutturata in un insieme di passi comprensibili.
